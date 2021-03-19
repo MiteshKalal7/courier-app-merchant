@@ -19,6 +19,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 export default class PersonalInformation extends Component {
   constructor(props) {
     super(props);
+    // console.log('this.props.imagePlaceholder');
+    // console.log(this.props.imagePlaceholder);
     this.state = {
       fullName: '',
       email: '',
@@ -27,8 +29,7 @@ export default class PersonalInformation extends Component {
       address: '',
       password: '',
       confirmPassword: '',
-      imageUri:
-        'https://aosa.org/wp-content/uploads/2019/04/image-placeholder-350x350.png',
+      imageUri: this.props.imagePlaceholder,
       imageType: '',
       imageName: '',
       userId: '',
@@ -65,7 +66,7 @@ export default class PersonalInformation extends Component {
         this.setState({dataLoading: false});
         if (response.status) {
           this.setState({
-            imageUri: data.avatar ?? this.state.imageUri,
+            imageUri: data.avatar ?? this.props.imagePlaceholder,
             fullName: data.name,
             email: data.email,
             mobile: data.mobile,
@@ -139,7 +140,7 @@ export default class PersonalInformation extends Component {
           this.setState({loading: false});
           if (response.status) {
             this.props.showSnackbar(response.status_text, true);
-            // this.props.goToNextStep();
+            this.props.goToNextStep();
           } else {
             this.props.showSnackbar(response.status_text);
           }
@@ -181,7 +182,7 @@ export default class PersonalInformation extends Component {
               style={{marginTop: 10, flexDirection: 'row', paddingLeft: 10}}>
               <Text
                 style={{color: colors.textColor, textAlignVertical: 'center'}}>
-                Logo :{' '}
+                Profile picture :{' '}
               </Text>
               <TouchableOpacity
                 onPress={() =>
@@ -209,7 +210,7 @@ export default class PersonalInformation extends Component {
                       source={{
                         uri: this.state.imageUri,
                       }}
-                      style={{height: 50, width: 50}}
+                      style={{height: 50, width: 50, borderRadius: 4}}
                       resizeMode={'cover'}
                     />
                   ) : (

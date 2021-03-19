@@ -5,6 +5,7 @@ import {
   // TouchableWithoutFeedback,
   Text,
   View,
+  AppState,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Appbar, Badge} from 'react-native-paper';
@@ -16,7 +17,9 @@ import {getThemeColors} from '../../global/themes';
 // import {useState} from 'react';
 import {API_URL} from '../../global/config';
 import AsyncStorage from '@react-native-community/async-storage';
-import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+import Menu, {MenuItem} from 'react-native-material-menu';
+import messaging from '@react-native-firebase/messaging';
+import notifee, {EventType} from '@notifee/react-native';
 
 const ContentTitle = ({title, color}) => (
   <Appbar.Content
@@ -39,10 +42,9 @@ function Header(props) {
 
   const [notificationCount, setNotificationCount] = React.useState(0);
   const [showMenu, setShowMenu] = React.useState(false);
+  const [appState, setAppState] = React.useState(AppState.currentState);
   const [actions, setActions] = React.useState([]);
   const menu = React.useRef();
-
-  const hideMenu = () => menu.current.hide();
 
   const getUserId = async () => {
     let userInfo = await AsyncStorage.getItem('userInfo');
@@ -52,14 +54,9 @@ function Header(props) {
     }
   };
 
-  React.useEffect(() => {
-    if (showMenu) {
-      menu.current.show();
-    }
-  }, [showMenu]);
-
-  React.useEffect(() => {
+  function getNotificationCount() {
     getUserId().then((id) => {
+      console.log(`${API_URL}newNotification`);
       fetch(`${API_URL}newNotification`, {
         method: 'post',
         body: JSON.stringify({user_id: id}),
@@ -78,7 +75,75 @@ function Header(props) {
           console.log(e);
         });
     });
+  }
+  const _handleAppStateChange = (nextAppState) => {
+    // console.log('OUT SIDE');
+    // if (appState.match(/inactive|background/) && nextAppState === 'active') {
+    console.log('FF');
+    getNotificationCount();
+    // }
+    setAppState(nextAppState);
+  };
+
+  React.useEffect(() => {
+    AppState.addEventListener('change', (e) => _handleAppStateChange(e));
+    getNotificationCount();
+    notifee.createChannel({
+      id: 'custom-sound',
+      name: 'System Sound',
+      sound: 'notification.mp3',
+    });
+
+    notifee.onForegroundEvent(({type, detail}) => {
+      switch (type) {
+        case EventType.DISMISSED:
+          console.log('User dismissed notification', detail.notification);
+          break;
+        case EventType.PRESS:
+          let count = notificationCount;
+          setNotificationCount(0);
+          // alert('0 done');
+          navigation.navigate('Notifications', {
+            count: count,
+            screen: ' ',
+          });
+          break;
+      }
+    });
+
+    messaging().onMessage(async (remoteMessage) => {
+      // console.log('ok oko k');
+      await notifee.displayNotification({
+        title: remoteMessage.notification.title,
+        body: remoteMessage.notification.body,
+        android: {
+          channelId: 'custom-sound',
+        },
+      });
+      getNotificationCount();
+    });
+
+    messaging().onNotificationOpenedApp((remoteMessage) => {
+      // console.log(
+      //   'Notification caused app to open from background state:',
+      //   remoteMessage.notification,
+      // );
+      let count = notificationCount;
+      setNotificationCount(0);
+      navigation.navigate('Notifications', {
+        count: count,
+        screen: 'header',
+      });
+
+      // navigation.navigate(remoteMessage.data.type);
+    });
   }, []);
+
+  React.useEffect(() => {
+    if (showMenu) {
+      menu.current.show();
+    }
+  }, [showMenu]);
 
   return (
     <Appbar.Header style={{backgroundColor: colors.headerColor}}>
@@ -111,8 +176,12 @@ function Header(props) {
           <Appbar.Action
             icon="bell"
             onPress={() => {
+              let count = notificationCount;
               setNotificationCount(0);
-              navigation.navigate('Notifications');
+              navigation.navigate('Notifications', {
+                count: count,
+                screen: 'header',
+              });
             }}
             size={28}
             color={colors.textColor}

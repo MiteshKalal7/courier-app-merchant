@@ -20,7 +20,7 @@ import {globalStyles} from '../../global/styles';
 import AsyncStorage from '@react-native-community/async-storage';
 import SplashScreen from 'react-native-splash-screen';
 import {connect} from 'react-redux';
-import {setProfileStatus, setTheme} from '../../redux/actions/config';
+import {setTheme} from '../../redux/actions/config';
 // import auth from '@react-native-firebase/auth';
 import messaging from '@react-native-firebase/messaging';
 import DeviceInfo from 'react-native-device-info';
@@ -50,12 +50,18 @@ class Login extends React.Component {
     let userInfo = await AsyncStorage.getItem('userInfo');
     if (userInfo) {
       //
-
-      userInfo = JSON.parse(userInfo);
-
-      this.getPersonalInfo(userInfo.id);
-
       store.dispatch(getAsyncStorage());
+
+      // Check whether an initial notification is available
+      messaging()
+        .getInitialNotification()
+        .then((remoteMessage) => {
+          // alert(JSON.stringify(remoteMessage));
+          // console.log(remoteMessage);
+          if (remoteMessage !== null) {
+            return this.props.navigation.navigate('Notifications');
+          }
+        });
 
       this.props.navigation.replace('User');
     } else {
@@ -97,46 +103,39 @@ class Login extends React.Component {
       });
   };
 
-  getPersonalInfo = (id) => {
-    console.log(`${API_URL}getUserPersonalInfo`);
-    fetch(`${API_URL}getUserPersonalInfo`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then(({data}) => {
-        // const {data} = res;
-        // response.imageUri = data.avatar;
-        // response.email = data.email;
-        // response.username = data.username;
-
-        // console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-        // console.log(data);
-
-        // alert(data.email);
-
-        this.props.setStatus(JSON.stringify(data));
-        AsyncStorage.setItem('profileStatus', JSON.stringify(data));
-      })
-      .catch((err) => {
-        this.setState({loading: false});
-        console.log(err);
-      });
-  };
+  // getUserStatus = (id) => {
+  //   fetch(`${API_URL}merchantProfileCompeletionAction`, {
+  //     method: 'POST',
+  //     headers: {
+  //       Accept: 'application/json',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       merchant_id: id,
+  //     }),
+  //   })
+  //     .then((res) => res.json())
+  //     .then((response) => {
+  //       // if (response.status) {
+  //       // alert(JSON.stringify(response));
+  //       // let value = response.darkMode ? 'dark' : 'default';
+  //       AsyncStorage.setItem('profileStatus', JSON.stringify(response));
+  //       // this.props.setUserTheme(value);
+  //       // }
+  //     })
+  //     .catch((err) => {
+  //       this.setState({loading: false});
+  //       console.log(err);
+  //     });
+  // };
 
   getBrandColor = () => {
     fetch(`${API_URL}brand`)
       .then((res) => res.json())
       .then((response) => {
         if (response.status) {
-          let object = response.brand;
-          object.currency = response.currency;
+          let object = response;
+          // object.currency = response.currency;
           object = JSON.stringify(object);
           AsyncStorage.setItem('themeColor', object);
           store.dispatch(getAsyncStorage());
@@ -245,7 +244,7 @@ class Login extends React.Component {
               this.getThemeMode(response.user_arr.id);
               this.storeDeviceInfo(response.user_arr.id);
               this.getBrandColor();
-              this.getPersonalInfo(response.user_arr.id);
+              // this.getUserStatus(response.user_arr.id);
               this.props.navigation.replace('User');
             } else {
               this.setState({loading: false});
@@ -361,13 +360,13 @@ class Login extends React.Component {
                     Forgot Password?
                   </Text>
                 </TouchableOpacity>
-                {/* <Tou`chableOpacity
+                <TouchableOpacity
                   style={{marginLeft: 'auto'}}
                   onPress={() =>
                     this.props.navigation.navigate('Registration')
                   }>
                   <Text style={{color: colors.textLight}}>Sign up</Text>
-                </TouchableOpacity>` */}
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -401,7 +400,6 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   setUserTheme: setTheme,
-  setStatus: setProfileStatus,
 })(Login);
 
 const styles = StyleSheet.create({

@@ -28,6 +28,7 @@ class Notifications extends Component {
       contentLoading: true,
       pageMeta: {},
       loadMore: true,
+      refreshing: false,
     };
   }
 
@@ -54,12 +55,17 @@ class Notifications extends Component {
     })
       .then((res) => res.json())
       .then((response) => {
+        console.log(response);
         let pageNumber = this.state.page;
+        this.setState({
+          refreshing: false,
+          contentLoading: false,
+        });
 
         if (pageNumber === 1) {
           this.setState({
             notifications: response.data,
-            contentLoading: false,
+
             pageMeta: response.meta,
           });
         } else {
@@ -70,7 +76,7 @@ class Notifications extends Component {
       })
       .catch((err) => {
         console.log(err);
-        this.setState({contentLoading: false});
+        this.setState({contentLoading: false, refreshing: false});
       });
   };
 
@@ -81,7 +87,7 @@ class Notifications extends Component {
         {
           page: newPage,
         },
-        () => this.merchantOrderList(this.state.filterType),
+        () => this.getNotifications(),
       );
     } else {
       this.setState({
@@ -92,6 +98,23 @@ class Notifications extends Component {
 
   render() {
     const {colors} = this.props;
+    const param = this.props.route.params;
+    if (param !== undefined) {
+      if (param.screen !== undefined) {
+        if (param.count > 0) {
+          this.setState(
+            {
+              page: 0,
+            },
+            () => {
+              this.onEndReached();
+            },
+          );
+        }
+
+        param.screen = undefined;
+      }
+    }
 
     const ContentLoader = () => {
       const array = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -116,6 +139,18 @@ class Notifications extends Component {
             {this.state.notifications.length > 0 ? (
               <FlatList
                 data={this.state.notifications}
+                onRefresh={() => {
+                  this.setState(
+                    {
+                      refreshing: true,
+                      page: 0,
+                    },
+                    () => {
+                      this.onEndReached();
+                    },
+                  );
+                }}
+                refreshing={this.state.refreshing}
                 keyExtractor={(_, i) => i}
                 style={{paddingHorizontal: 10}}
                 ListFooterComponent={

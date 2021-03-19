@@ -164,9 +164,7 @@ function DrawerContent(props) {
               <View style={{flexDirection: 'row'}}>
                 <Avatar.Image
                   source={{
-                    uri:
-                      profileStatus.imageUri ??
-                      'https://i1.wp.com/www.ieeer10.org/wp-content/plugins/userswp/assets/images/no_profile.png?ssl=1',
+                    uri: profileStatus.imageUri ?? props.imagePlaceholder,
                   }}
                   size={50}
                 />
@@ -202,14 +200,14 @@ function DrawerContent(props) {
                 labelStyle={{color: colors.textColor}}
                 label="Home"
                 onPress={() => {
-                  // if (profileStatus.type) {
-                  //   alert('Complete Your profile first');
-                  // } else {
-                  props.navigation.navigate('Dashboard');
-                  // }
+                  if (profileStatus.type || profileStatus.type === undefined) {
+                    alert('Complete Your profile first');
+                  } else {
+                    props.navigation.navigate('Dashboard');
+                  }
                 }}
               />
-              {/* <DrawerItem
+              <DrawerItem
                 icon={() => (
                   <Icon
                     name="text-box-plus"
@@ -220,13 +218,13 @@ function DrawerContent(props) {
                 label="Add Shipment"
                 labelStyle={{color: colors.textColor}}
                 onPress={() => {
-                  if (profileStatus.type) {
+                  if (profileStatus.type || profileStatus.type === undefined) {
                     alert('Complete Your profile first');
                   } else {
                     props.navigation.navigate('Shipment');
                   }
                 }}
-              /> */}
+              />
               {/* <DrawerItem
                 icon={() => (
                   <Icon name="cog" size={30} color={colors.textColor} />
@@ -295,11 +293,21 @@ const mapStateToProps = (state) => {
   // console.log(state);
   // alert(JSON.stringify(state));
   // setIsDarkMode(state.theme === 'dark' ? true : false);
+
+  let imagePlaceholder = JSON.parse(state.brand);
+
+  if (imagePlaceholder) {
+    imagePlaceholder = imagePlaceholder.default.avatar;
+  } else {
+    imagePlaceholder = '';
+  }
+
   var theme = getThemeColors(state.theme);
   return {
     theme: state.theme,
     colors: theme,
     profileStatus: state.profileStatus,
+    imagePlaceholder: imagePlaceholder,
   };
 
   // count: state.count,

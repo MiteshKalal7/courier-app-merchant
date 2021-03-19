@@ -27,8 +27,7 @@ export default class CompanyInfo extends Component {
       productType: '',
       code: '',
       siteUrl: '',
-      imageUri:
-        'https://aosa.org/wp-content/uploads/2019/04/image-placeholder-350x350.png',
+      imageUri: this.props.imagePlaceholder,
       imageType: '',
       imageName: '',
       userId: '',
@@ -65,7 +64,7 @@ export default class CompanyInfo extends Component {
         this.setState({dataLoading: false});
         if (response.status) {
           this.setState({
-            imageUri: data.logo ?? this.state.imageUri,
+            imageUri: data.logo ?? this.props.imagePlaceholder,
             businessName: data.name,
             email: data.email,
             mobile: data.phone,
@@ -80,7 +79,7 @@ export default class CompanyInfo extends Component {
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.log('getMerchantCompany ' + err);
         this.setState({dataLoading: false});
       });
   };
@@ -209,7 +208,12 @@ export default class CompanyInfo extends Component {
                 {this.state.imageUri ? (
                   <Image
                     source={{uri: this.state.imageUri}}
-                    style={{height: 50, width: 50, marginRight: 20}}
+                    style={{
+                      height: 50,
+                      width: 50,
+                      marginRight: 20,
+                      borderRadius: 4,
+                    }}
                   />
                 ) : (
                   <Text style={{color: colors.textColor}}>Select Picture</Text>

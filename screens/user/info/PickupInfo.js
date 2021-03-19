@@ -85,11 +85,12 @@ export default class PickupInfo extends Component {
             this.setState({
               isModalVisible: true,
             });
+          } else {
+            this.setState({
+              addresses: data.address,
+              isModalVisible: data.address.length > 0 ? false : true,
+            });
           }
-          this.setState({
-            addresses: data.address,
-            isModalVisible: data.address.length > 0 ? false : true,
-          });
         } else {
           this.props.showSnackbar(response.status_text);
         }
@@ -101,9 +102,11 @@ export default class PickupInfo extends Component {
   };
 
   getDistrictList = () => {
+    console.log(`${API_URL}districtList`);
     fetch(`${API_URL}districtList`)
       .then((res) => res.json())
       .then(({data}) => {
+        console.log(data);
         this.setState({
           districtList: data,
         });
@@ -198,7 +201,7 @@ export default class PickupInfo extends Component {
         this.setState({loading: false});
         if (response.status) {
           this.props.showSnackbar(response.status_text, true);
-          this.props.goToNextStep();
+          this.props.goToNextStep('COMPLETED');
         } else {
           this.props.showSnackbar(response.status_text);
         }

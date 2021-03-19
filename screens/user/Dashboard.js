@@ -32,16 +32,21 @@ import AnimatedPullToRefresh from 'react-native-animated-pull-to-refresh';
 import Loader from '../common/Loader';
 import LinearGradient from 'react-native-linear-gradient';
 import Menu, {MenuItem} from 'react-native-material-menu';
-import messaging from '@react-native-firebase/messaging';
-import InputOTP from './../common/InputOTP';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import notifee from '@notifee/react-native';
 
 const vh = Dimensions.get('window').height * 0.01;
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
+
+    // messaging().onMessage((remoteMessage) => {
+    //   // console.log(remoteMessage);
+    //   // console.log(remoteMessage.notification);
+    //   Alert.alert(
+    //     remoteMessage.notification.title,
+    //     remoteMessage.notification.body,
+    //   );
+    // });
 
     // messaging()
     //   .getToken()
@@ -69,10 +74,6 @@ class Dashboard extends Component {
       loadMore: true,
       page: 1,
       activeColor: '',
-      isModalVisible: false,
-      date: new Date(),
-      mode: 'date',
-      showDatePicker: false,
     };
 
     // alert(this.props.currency);
@@ -94,138 +95,8 @@ class Dashboard extends Component {
     this._menu.show();
   };
 
-  onDateChange = ({nativeEvent}, selectedDate) => {
-    // const currentDate = selectedDate ;
-    if (selectedDate !== undefined) {
-      if (this.state.mode === 'date') {
-        this.setState({
-          mode: 'time',
-          date: selectedDate,
-        });
-      } else {
-        // console.log('!!!!!!!!!!!!!!!!!!!!1');
-        // alert(selectedDate);
-        // console.log(nativeEvent.timestamp);
-
-        this.setState(
-          {
-            showDatePicker: false,
-            mode: 'date',
-            date: nativeEvent.timestamp,
-          },
-          () => {
-            this.rescheduleOrder(nativeEvent.timestamp);
-          },
-        );
-      }
-    } else {
-      this.setState({
-        showDatePicker: false,
-      });
-    }
-  };
-
-  rescheduleOrder = (date) => {
-    // alert(JSON.stringify(date));
-
-    let newDate = JSON.stringify(date);
-    newDate = newDate.split(':');
-
-    newDate = newDate[0] + ':' + newDate[1];
-
-    newDate = newDate.replace('"', '');
-    console.log(newDate);
-
-    this.setState({showLoading: true});
-    console.log(
-      `${API_URL}reschedule`,
-      JSON.stringify({
-        id: this.state.orderId,
-        user_id: this.state.userId,
-        at: newDate,
-      }),
-    );
-    fetch(`${API_URL}reschedule`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: this.state.orderId,
-        user_id: this.state.userId,
-        at: newDate,
-      }),
-    })
-      .then((res) => res.json())
-      .then((response) => {
-        this.setState({showLoading: false});
-        console.log(response);
-        if (response.status) {
-          var renderData = [...this.state.renderData];
-
-          renderData.map((item) => {
-            if (item.id === this.state.orderId) {
-              item.delivery_date = response.rescheduled_at.date;
-              item.delivery_time = response.rescheduled_at.time;
-              return;
-            }
-          });
-
-          LayoutAnimation.configureNext({
-            duration: 500,
-            create: {
-              type: LayoutAnimation.Types.easeInEaseOut,
-              property: LayoutAnimation.Properties.opacity,
-            },
-            update: {type: LayoutAnimation.Types.easeInEaseOut},
-          });
-
-          this.setState({renderData});
-          this.showSnackbar(response.data, true);
-
-          // this.updateRecords();
-        } else {
-          this.showSnackbar(response.data, true);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  // updateRecords = () => {
-  //   this.setState(
-  //     {
-  //       page: 1,
-  //       loadMore: true,
-  //     },
-  //     () => {
-  //       this.driverOrderList(this.state.filterType, true);
-  //     },
-  //   );
-  // };
-
   async componentDidMount() {
     SplashScreen.hide();
-
-    await notifee.createChannel({
-      id: 'custom-sound',
-      name: 'System Sound',
-      sound: 'notification.mp3',
-    });
-
-    messaging().onMessage(async (remoteMessage) => {
-      await notifee.displayNotification({
-        title: remoteMessage.notification.title,
-        body: remoteMessage.notification.body,
-        android: {
-          channelId: 'custom-sound',
-        },
-      });
-    });
-
-    // return unsubscribe;
 
     let userInfo = await AsyncStorage.getItem('userInfo');
     if (userInfo) {
@@ -236,13 +107,13 @@ class Dashboard extends Component {
     }
     this.getOrderSummery();
     this.getFinancialSummery();
-    this.driverOrderList(this.state.filterType);
+    this.merchantOrderList(this.state.filterType);
     this.getOrderFilter();
   }
 
   getOrderFilter = () => {
-    console.log(`${API_URL}orderFilterParamsForDriver`);
-    fetch(`${API_URL}orderFilterParamsForDriver`, {method: 'post'})
+    console.log(`${API_URL}orderFilterParamsForMerchant`);
+    fetch(`${API_URL}orderFilterParamsForMerchant`, {method: 'post'})
       .then((res) => res.json())
       .then((response) => {
         // console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
@@ -260,14 +131,13 @@ class Dashboard extends Component {
   };
 
   getOrderSummery = () => {
-    console.log(`${API_URL}driverOrderSummery`);
-    fetch(`${API_URL}driverOrderSummery`, {
+    fetch(`${API_URL}merchantOrderSummery`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({driver_id: this.state.userId}),
+      body: JSON.stringify({merchant_id: this.state.userId}),
     })
       .then((res) => res.json())
       .then((response) => {
@@ -283,18 +153,18 @@ class Dashboard extends Component {
       });
   };
 
-  driverOrderList = (filterType, removeRecord = false) => {
+  merchantOrderList = (filterType, removeRecord = false) => {
     let pageNumber = this.state.page;
 
     console.log(
-      `${API_URL}driverOrderList` +
+      `${API_URL}merchantOrderList` +
         JSON.stringify({
           user_id: this.state.userId,
           type: filterType,
           page: pageNumber,
         }),
     );
-    fetch(`${API_URL}driverOrderList`, {
+    fetch(`${API_URL}merchantOrderList`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -309,8 +179,8 @@ class Dashboard extends Component {
       .then((res) => res.json())
       .then((response) => {
         if (response.status) {
-          console.log('############');
-          console.log(response.meta);
+          // if (removeRecord) alert(response.data.length);
+
           this.setState({pageMeta: response.meta, isRefreshing: false});
 
           LayoutAnimation.configureNext({
@@ -355,6 +225,8 @@ class Dashboard extends Component {
             }
           } else {
             if (pageNumber === 1) {
+              // if (removeRecord)
+              //   alert('in page 1 remove data + length ' + response.meta.total);
               // alert('else in if');
               // alert(response.meta.total + 'type = ' + orderType);
               this.setState({
@@ -387,13 +259,13 @@ class Dashboard extends Component {
   };
 
   getFinancialSummery = () => {
-    fetch(`${API_URL}driverFinancialSummery`, {
+    fetch(`${API_URL}merchantFinancialSummery`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({driver_id: this.state.userId}),
+      body: JSON.stringify({merchant_id: this.state.userId}),
     })
       .then((res) => res.json())
       .then((response) => {
@@ -409,6 +281,36 @@ class Dashboard extends Component {
         this.setState({contentLoading: false});
       });
   };
+
+  onPressHandler(id) {
+    let renderData = [...this.state.renderData];
+    let selectedItem = [...this.state.selectedItem];
+    for (let data of renderData) {
+      if (data.id == id) {
+        data.selected = data.selected == null ? true : !data.selected;
+        // data.statusChanged = true;
+        if (data.selected) {
+          selectedItem.push(data.id);
+        } else {
+          var index = selectedItem.indexOf(data.id);
+          if (index > -1) {
+            selectedItem.splice(index, 1);
+          }
+        }
+        break;
+      }
+    }
+
+    LayoutAnimation.configureNext({
+      duration: 300,
+      create: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {type: LayoutAnimation.Types.easeInEaseOut},
+    });
+    this.setState({renderData, selectedItem});
+  }
 
   showSnackbar = (message, status = false) => {
     this.setState({
@@ -430,62 +332,36 @@ class Dashboard extends Component {
       () => {
         this.getOrderSummery();
         this.getFinancialSummery();
-        this.driverOrderList(this.state.filterType, true);
+        this.merchantOrderList(this.state.filterType, true);
       },
     );
   };
 
   onMenuPress = (menuId, orderId, type) => {
-    console.log(orderId + '=' + menuId + '=' + type);
+    /*
+     * 1) multi form data like Edit order
+     * 2) simple single data
+     */
     if (menuId === 1) {
-      if (type === 11) {
-        this.setState({
-          orderId: orderId,
-          isModalVisible: true,
-        });
-      } else if (type === 8) {
-        this.setState({
-          orderId: orderId,
-          showDatePicker: true,
-        });
-      }
-
+      // alert(typeof orderId);
       // console.log(orderId);
+      this.props.navigation.navigate('Shipment', {
+        orderId: orderId[0],
+        screen: 'Dashboard',
+      });
     } else if (menuId === 2) {
-      var message = 'You want to perform this operation!';
+      this.setState({
+        showLoading: true,
+        activeColor: '#f8d7da',
+      });
 
-      if (type === 9) {
-        message = 'Customer wants to reject this order!';
-      } else if (type === 10) {
-        message = 'You want to return the order to HUB!';
-      } else if (type === 14) {
-        message = 'You want to return the order to merchant!';
-      } else if (type === 4) {
-        message = 'Customer wants to reject this order!';
-      }
-      // else {
-      //   alert(type);
+      // console.log('Order status change');
+      // console.log(type, orderId);
+
+      this.changeOrderStatus(type, orderId);
+      // if (type === 1) {
+      // packaging done
       // }
-
-      Alert.alert(
-        'Are you sure?',
-        message,
-        [
-          {text: 'Cancel', onPress: () => null},
-          {
-            text: 'OK',
-            onPress: () => {
-              this.setState({
-                showLoading: true,
-              });
-              this.changeOrderStatus(type, [orderId]);
-            },
-          },
-        ],
-        {cancelable: false},
-      );
-
-      // this.changeOrderStatus(type, orderId);
     }
   };
 
@@ -512,8 +388,6 @@ class Dashboard extends Component {
     })
       .then((res) => res.json())
       .then((response) => {
-        console.log(response);
-
         this.setState({showLoading: false});
 
         if (response.status) {
@@ -531,17 +405,14 @@ class Dashboard extends Component {
                 if (item.id === id) {
                   item.status = response.status;
                   // alert(JSON.stringify(response.actions.statusList));
-
-                  if (response.actions.statusList.length > 0)
-                    item.actions[0].statusList = response.actions.statusList;
-                  else item.actions = response.actions.statusList;
-                  // item.selected = false;
-                  // console.log(
-                  //   `${API_URL}updateStatus`,
-                  //   JSON.stringify({ids: orderId, status: statusId}),
-                  // );
+                  item.actions[0].statusList = response.actions.statusList;
+                  item.selected = false;
+                  console.log(
+                    `${API_URL}updateStatus`,
+                    JSON.stringify({ids: orderId, status: statusId}),
+                  );
                   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                  console.log(item.actions[0].statusList);
+                  console.log(item.actions.statusList);
                   // console.log(response);
                 }
               });
@@ -579,123 +450,95 @@ class Dashboard extends Component {
       });
   };
 
-  changeStatusSuccess = (orderId) => {
-    var renderData = [...this.state.renderData];
+  onActionPress = async () => {
+    var selectedOrderStatus = [];
+    var actions = [];
 
-    renderData.map((item) => {
-      if (item.id === orderId) {
-        item.status = {
-          id: 11,
-          name: 'Delivered',
-          color: 'brand',
-        };
+    if (this.state.selectedItem.length > 0) {
+      this.state.selectedItem.map((id) => {
+        var value = this.state.renderData.find((x) => x.id === id);
+        selectedOrderStatus = [...selectedOrderStatus, value.status.id];
+        actions = value.actions;
+      });
 
-        item.actions = [];
+      // console.log(selectedOrderStatus);
+      if (new Set(selectedOrderStatus).size === 1) {
+        return {status: true, actions: actions};
+      } else {
+        this.showSnackbar('Please select order with same status');
+        return {status: false, actions: []};
       }
-    });
-
-    LayoutAnimation.configureNext({
-      duration: 500,
-      create: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {type: LayoutAnimation.Types.easeInEaseOut},
-    });
-
-    this.showSnackbar('Order Delivered Successfully', true);
-    this.setState({renderData});
+    }
   };
 
-  // onActionPress = async () => {
-  //   var selectedOrderStatus = [];
-  //   var actions = [];
+  onDeletePress = () => {
+    Alert.alert(
+      'Are you sure?',
+      'You want to delete this order.',
+      [
+        {text: 'Cancel', onPress: () => null},
+        {
+          text: 'OK',
+          onPress: () => {
+            this.setState({
+              showLoading: true,
+            });
+            console.log(
+              `${API_URL}deleteOrder`,
+              JSON.stringify({ids: this.state.selectedItem}),
+            );
+            fetch(`${API_URL}deleteOrder`, {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ids: this.state.selectedItem}),
+            })
+              .then((res) => res.json())
+              .then((response) => {
+                this.setState({showLoading: false});
+                console.log(response);
+                console.log('_________remove ids___________');
+                console.log(response.ids);
 
-  //   if (this.state.selectedItem.length > 0) {
-  //     this.state.selectedItem.map((id) => {
-  //       var value = this.state.renderData.find((x) => x.id === id);
-  //       selectedOrderStatus = [...selectedOrderStatus, value.status.id];
-  //       actions = value.actions;
-  //     });
+                if (response.ids.length > 0) {
+                  var orders = this.state.renderData;
 
-  //     // console.log(selectedOrderStatus);
-  //     if (new Set(selectedOrderStatus).size === 1) {
-  //       return {status: true, actions: actions};
-  //     } else {
-  //       this.showSnackbar('Please select order with same status');
-  //       return {status: false, actions: []};
-  //     }
-  //   }
-  // };
+                  response.ids.map((item) => {
+                    orders.splice(
+                      orders.findIndex((a) => a.id === item),
+                      1,
+                    );
+                  });
 
-  // onDeletePress = () => {
-  //   Alert.alert(
-  //     'Are you sure?',
-  //     'You want to delete this order.',
-  //     [
-  //       {text: 'Cancel', onPress: () => null},
-  //       {
-  //         text: 'OK',
-  //         onPress: () => {
-  //           this.setState({
-  //             showLoading: true,
-  //           });
-  //           console.log(
-  //             `${API_URL}deleteOrder`,
-  //             JSON.stringify({ids: this.state.selectedItem}),
-  //           );
-  //           fetch(`${API_URL}deleteOrder`, {
-  //             method: 'POST',
-  //             headers: {
-  //               Accept: 'application/json',
-  //               'Content-Type': 'application/json',
-  //             },
-  //             body: JSON.stringify({ids: this.state.selectedItem}),
-  //           })
-  //             .then((res) => res.json())
-  //             .then((response) => {
-  //               this.setState({showLoading: false});
-  //               console.log(response);
-  //               console.log('_________remove ids___________');
-  //               console.log(response.ids);
+                  console.log('############################################');
+                  console.log(orders);
+                  this.setState({
+                    renderData: orders,
+                  });
+                }
 
-  //               if (response.ids.length > 0) {
-  //                 var orders = this.state.renderData;
+                if (response.status) {
+                  this.setState({
+                    selectedItem: [],
+                  });
 
-  //                 response.ids.map((item) => {
-  //                   orders.splice(
-  //                     orders.findIndex((a) => a.id === item),
-  //                     1,
-  //                   );
-  //                 });
-
-  //                 console.log('############################################');
-  //                 console.log(orders);
-  //                 this.setState({
-  //                   renderData: orders,
-  //                 });
-  //               }
-
-  //               if (response.status) {
-  //                 this.setState({
-  //                   selectedItem: [],
-  //                 });
-
-  //                 this.showSnackbar(response.status_text, true);
-  //               } else {
-  //                 this.showSnackbar(response.status_text);
-  //               }
-  //             })
-  //             .catch((err) => {
-  //               console.log(err);
-  //               this.setState({showLoading: false});
-  //             });
-  //         },
-  //       },
-  //     ],
-  //     {cancelable: false},
-  //   );
-  // };
+                  this.showSnackbar(response.status_text, true);
+                } else {
+                  this.showSnackbar(response.status_text);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                this.setState({showLoading: false});
+              });
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
 
   onEndReached = () => {
     let newPage = this.state.page + 1;
@@ -704,7 +547,7 @@ class Dashboard extends Component {
         {
           page: newPage,
         },
-        () => this.driverOrderList(this.state.filterType),
+        () => this.merchantOrderList(this.state.filterType),
       );
     } else {
       this.setState({
@@ -714,26 +557,26 @@ class Dashboard extends Component {
   };
 
   render() {
-    // const param = this.props.route.params;
-    // if (param !== undefined) {
-    //   if (param.screen !== undefined) {
-    //     this.showSnackbar(param.message, param.status);
+    const param = this.props.route.params;
+    if (param !== undefined) {
+      if (param.screen !== undefined) {
+        this.showSnackbar(param.message, param.status);
 
-    //     this.setState(
-    //       {
-    //         page: 1,
-    //         loadMore: true,
-    //         selectedItem: [],
-    //       },
-    //       () => {
-    //         this.getOrderSummery();
-    //         this.driverOrderList(this.state.filterType, true);
-    //       },
-    //     );
+        this.setState(
+          {
+            page: 1,
+            loadMore: true,
+            selectedItem: [],
+          },
+          () => {
+            this.getOrderSummery();
+            this.merchantOrderList(this.state.filterType, true);
+          },
+        );
 
-    //     param.screen = undefined;
-    //   }
-    // }
+        param.screen = undefined;
+      }
+    }
 
     const ContentLoader = () => {
       const array = [0, 1, 2, 3, 4, 5];
@@ -770,7 +613,7 @@ class Dashboard extends Component {
     const {colors} = this.props;
     return (
       <>
-        {/* {this.state.selectedItem.length > 0 ? (
+        {this.state.selectedItem.length > 0 ? (
           <Header
             title={this.state.selectedItem.length + ' Orders Selected'}
             back={true}
@@ -786,9 +629,9 @@ class Dashboard extends Component {
               this.onMenuPress(mid, this.state.selectedItem, type)
             }
           />
-        ) : ( */}
-        <Header title="Dashboard" />
-        {/* )} */}
+        ) : (
+          <Header title="Dashboard" />
+        )}
         <>
           {this.state.contentLoading ? (
             <ContentLoader />
@@ -801,33 +644,6 @@ class Dashboard extends Component {
                 backgroundColor={'#5DADE2'}
                 renderElement={
                   <ScrollView>
-                    <View style={{backgroundColor: colors.backgroundColor}}>
-                      <InputOTP
-                        visible={this.state.isModalVisible}
-                        colors={colors}
-                        orderId={this.state.orderId}
-                        userId={this.state.userId}
-                        onClosePress={() =>
-                          this.setState({
-                            isModalVisible: false,
-                          })
-                        }
-                        changeStatusSuccess={this.changeStatusSuccess}
-                        clear={true}
-                      />
-                      {this.state.showDatePicker && (
-                        <DateTimePicker
-                          testID="dateTimePicker"
-                          value={this.state.date}
-                          minimumDate={new Date()}
-                          mode={this.state.mode}
-                          is24Hour={true}
-                          display="default"
-                          onChange={this.onDateChange}
-                          timeZoneOffsetInMinutes={0}
-                        />
-                      )}
-                    </View>
                     {financialSummery && (
                       <View style={styles.moneyText}>
                         {Object.keys(financialSummery).map((key, i) => {
@@ -911,7 +727,7 @@ class Dashboard extends Component {
                                     filterType: orderSummery[key].index,
                                   },
                                   () => {
-                                    this.driverOrderList(
+                                    this.merchantOrderList(
                                       orderSummery[key].index,
                                       true,
                                     );
@@ -1004,7 +820,7 @@ class Dashboard extends Component {
                                           selectedItem: [],
                                         },
                                         () => {
-                                          this.driverOrderList(
+                                          this.merchantOrderList(
                                             this.state.filterType,
                                             true,
                                           );
@@ -1040,10 +856,17 @@ class Dashboard extends Component {
                               onEndReached={() => this.onEndReached()}
                               onEndReachedThreshold={10}
                               renderItem={({item}) => (
-                                <View
-                                  style={{
-                                    backgroundColor: colors.backgroundColor,
-                                  }}>
+                                <TouchableRipple
+                                  style={
+                                    item.selected == true
+                                      ? {backgroundColor: colors.selectedColor}
+                                      : {
+                                          backgroundColor:
+                                            colors.backgroundColor,
+                                        }
+                                  }
+                                  onPress={() => this.onPressHandler(item.id)}
+                                  rippleColor="rgba(0, 0, 0, .32)">
                                   <Accordian
                                     style={
                                       item.selected == true
@@ -1065,10 +888,10 @@ class Dashboard extends Component {
                                     status="pending"
                                     onMenuPress={(mid, type = '') => {
                                       // let id = mid === 1 ? item.id : [item.id];
-                                      this.onMenuPress(mid, item.id, type);
+                                      this.onMenuPress(mid, [item.id], type);
                                     }}
                                   />
-                                </View>
+                                </TouchableRipple>
                               )}
                             />
                           </View>
@@ -1131,19 +954,10 @@ class Dashboard extends Component {
 
 const mapStateToProps = (state) => {
   let brand = state.brand;
+  brand = JSON.parse(brand);
   // alert(brand.currency);
-
-  let currency = '৳';
-
-  console.log(brand);
-
-  if (brand !== null) {
-    brand = JSON.parse(brand);
-    currency = brand.currency;
-  }
-
   var theme = getThemeColors(state.theme);
-  return {colors: theme, currency: currency};
+  return {colors: theme, currency: brand.currency};
 };
 
 export default connect(mapStateToProps)(Dashboard);

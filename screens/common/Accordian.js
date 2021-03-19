@@ -7,6 +7,7 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  Linking,
 } from 'react-native';
 // import {TouchableRipple} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Feather';
@@ -40,8 +41,8 @@ class ListCard extends Component {
       return '#f0ad4e';
     } else if (color === 'info') {
       return '#5bc0de';
-    } else if (color === 'brand') {
-      return this.props.colors.primaryColor;
+    } else if (color === 'dark') {
+      return '#23272B';
     } else {
       return color;
     }
@@ -84,7 +85,7 @@ class ListCard extends Component {
           <View
             style={this.state.expanded ? styles.cardExpand : styles.cardNormal}>
             <View style={{flexDirection: 'row'}}>
-              <Text style={styles.textStyle}>Order No.</Text>
+              <Text style={styles.textStyle}>Order No. {dataItem.id}</Text>
               <View
                 style={{
                   marginLeft: 'auto',
@@ -151,17 +152,17 @@ class ListCard extends Component {
                                     </MenuItem>
                                   );
                                 })}
-                                {/* <View
+                                <View
                                   style={{
                                     borderBottomColor: colors.borderColor,
                                     borderBottomWidth: 1,
                                   }}
-                                /> */}
+                                />
                               </>
                             ) : (
                               <MenuItem
                                 onPress={() => {
-                                  this.props.onMenuPress(item.type, item.value);
+                                  this.props.onMenuPress(item.type);
                                   this._menu.hide();
                                 }}
                                 key={i}>
@@ -186,6 +187,74 @@ class ListCard extends Component {
               }}>
               {dataItem.number}
             </Text>
+
+            <View style={{marginTop: 10}}>
+              <Text style={[styles.textStyle, {textAlignVertical: 'center'}]}>
+                <Icon name="phone" size={16} color="#999999" /> :
+                <TouchableOpacity
+                  onPress={() => {
+                    Linking.openURL(`tel:${dataItem.client.phone}`);
+                  }}>
+                  <Text
+                    style={{
+                      color: '#78A3E8',
+                    }}>
+                    {' '}
+                    {dataItem.client.phone}
+                  </Text>
+                </TouchableOpacity>
+                ,
+                <TouchableOpacity
+                  onPress={() => {
+                    Linking.openURL(`tel:${dataItem.client.company.phone}`);
+                  }}>
+                  <Text
+                    style={{
+                      color: '#78A3E8',
+                    }}>
+                    {dataItem.client.company.phone}
+                  </Text>
+                </TouchableOpacity>
+              </Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text
+                  style={[
+                    styles.textStyle,
+                    {flexDirection: 'row', textAlignVertical: 'center'},
+                  ]}>
+                  <MIcon name="business-center" size={16} color="#999999" /> :{' '}
+                  {dataItem.client.company.name}
+                </Text>
+                <View style={{marginLeft: 'auto'}}>
+                  <Text style={styles.textStyle}>
+                    <MaterialCommunityIcons
+                      name="road-variant"
+                      size={16}
+                      color="#999999"
+                    />{' '}
+                    : {dataItem.client.street_addr}
+                  </Text>
+                </View>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.textStyle}>
+                  <MIcon name="business" size={16} color="#999999" /> :{' '}
+                  {dataItem.client_area}
+                </Text>
+                <View style={{marginLeft: 'auto'}}>
+                  <Text style={styles.textStyle}>
+                    <MaterialCommunityIcons
+                      name="map-marker-distance"
+                      size={16}
+                      color="#999999"
+                    />{' '}
+                    : {dataItem.pickup_point.street} [
+                    {dataItem.pickup_point.title}]
+                  </Text>
+                </View>
+              </View>
+            </View>
+
             <View style={{flexDirection: 'row', marginTop: 10}}>
               <Text style={styles.textStyle}>Arrived On</Text>
               <View style={{marginLeft: 'auto'}}>
@@ -201,7 +270,7 @@ class ListCard extends Component {
                 }>
                 {dataItem.delivery_date} {dataItem.delivery_time}
               </Text>
-              <View style={{marginLeft: 'auto', maxWidth: 155}}>
+              <View style={{marginLeft: 'auto'}}>
                 <Text
                   style={styles.badgeStyle(
                     this.getBackgroundColor(dataItem.status.color),
@@ -218,7 +287,7 @@ class ListCard extends Component {
                   <Icon name="user" size={15} color="#999999" /> Merchant :{' '}
                 </Text>
                 <Text style={styles.textBlack(colors.textColor)}>
-                  {dataItem.client.name}
+                  {dataItem.client.name.phone}
                 </Text>
               </View>
               <View style={{flexDirection: 'row', marginTop: 5}}>
@@ -249,12 +318,8 @@ class ListCard extends Component {
               </View>
               <View style={{flexDirection: 'row', marginTop: 5}}>
                 <Text style={styles.textStyle}>
-                  <MaterialCommunityIcons
-                    name="currency-bdt"
-                    size={15}
-                    color="#999999"
-                  />{' '}
-                  Cash Collection:{' '}
+                  <Icon name="dollar-sign" size={15} color="#999999" /> Cash
+                  Collection:{' '}
                 </Text>
                 <Text style={styles.textBlack(colors.textColor)}>
                   {currency}
