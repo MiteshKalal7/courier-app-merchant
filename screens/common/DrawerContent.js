@@ -103,33 +103,6 @@ function DrawerContent(props) {
       });
   };
 
-  // const checkUserCompleteProfile = () => {
-  //   console.log(`${API_URL}merchantProfileCompeletionAction`);
-  //   fetch(`${API_URL}merchantProfileCompeletionAction`, {
-  //     method: 'POST',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       merchant_id: userInfo.id,
-  //     }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((response) => {
-  //       console.log(response);
-  //       let type = response.type;
-  //       if (type) {
-  //         alert(response.helpText);
-  //       } else {
-  //         props.navigation.navigate('Dashboard');
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
-
   const {colors} = props;
 
   React.useEffect(() => {
@@ -145,14 +118,6 @@ function DrawerContent(props) {
   return (
     <>
       <View style={{flex: 1, backgroundColor: colors.drawerBackground}}>
-        {/* {loading && (
-          <>
-            <View style={styles.loading}>
-             
-              <Text style={styles.loadingText}>Please Wait ...</Text>
-            </View>
-          </>
-        )} */}
         <DrawerContentScrollView {...props}>
           <View style={styles.drawerContent}>
             <TouchableRipple

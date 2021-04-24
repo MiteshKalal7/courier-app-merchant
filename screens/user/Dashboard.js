@@ -38,7 +38,7 @@ const vh = Dimensions.get('window').height * 0.01;
 class Dashboard extends Component {
   constructor(props) {
     super(props);
-
+    
     // messaging().onMessage((remoteMessage) => {
     //   // console.log(remoteMessage);
     //   // console.log(remoteMessage.notification);
@@ -97,7 +97,6 @@ class Dashboard extends Component {
 
   async componentDidMount() {
     SplashScreen.hide();
-
     let userInfo = await AsyncStorage.getItem('userInfo');
     if (userInfo) {
       userInfo = JSON.parse(userInfo);
@@ -953,11 +952,16 @@ class Dashboard extends Component {
 }
 
 const mapStateToProps = (state) => {
+  // alert(JSON.stringify(state));
   let brand = state.brand;
-  brand = JSON.parse(brand);
+  let currency = '';
+  if (brand) {
+    brand = JSON.parse(brand);
+    currency = brand.currency;
+  }
   // alert(brand.currency);
   var theme = getThemeColors(state.theme);
-  return {colors: theme, currency: brand.currency};
+  return {colors: theme, currency: currency};
 };
 
 export default connect(mapStateToProps)(Dashboard);

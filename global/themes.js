@@ -40,8 +40,8 @@ export const getThemeColors = (theme = 'default', brand = '') => {
   var colors = theme === 'dark' ? darkColors : defaultColors;
   if (brand) {
     brand = JSON.parse(brand);
-    colors.primaryColor = brand.bgColor;
-    colors.primaryTextColor = brand.fontColor;
+    colors.primaryColor = brand.brand.bgColor;
+    colors.primaryTextColor = brand.brand.fontColor;
   }
 
   return colors;

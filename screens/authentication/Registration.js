@@ -101,8 +101,8 @@ class Registration extends React.Component {
       .then((res) => res.json())
       .then((response) => {
         if (response.status) {
-          let object = response.brand;
-          object.currency = response.currency;
+          let object = response;
+          // object.currency = response.currency;
           object = JSON.stringify(object);
           AsyncStorage.setItem('themeColor', object);
           store.dispatch(getAsyncStorage());
@@ -166,7 +166,11 @@ class Registration extends React.Component {
               AsyncStorage.setItem('userInfo', JSON.stringify(response.user));
               this.storeDeviceInfo(response.user.id);
               this.getBrandColor();
-              this.props.navigation.replace('User');
+              // this.props.navigation.replace('User');
+              this.props.navigation.reset({
+                index: 0,
+                routes: [{name: 'User'}],
+              });
             } else {
               this.showSnackbar(response.status_text);
             }

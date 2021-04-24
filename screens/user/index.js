@@ -12,45 +12,19 @@ import {BankingInfo, CompanyInfo, PersonalInfo, PickupInfo} from './info';
 import {connect} from 'react-redux';
 import {setProfileStatus} from '../../redux/actions/config';
 
-// const getStepIndicatorIconConfig = ({position, stepStatus, primaryColor}) => {
-//   const iconConfig = {
-//     name: 'emoticon-happy',
-//     color: stepStatus === 'finished' ? '#ffffff' : primaryColor,
-//     size: 23,
-//   };
-//   switch (position) {
-//     case 0: {
-//       iconConfig.name = 'account-outline';
-//       break;
-//     }
-//     case 1: {
-//       iconConfig.name = 'home-city-outline';
-//       break;
-//     }
-//     case 2: {
-//       iconConfig.name = 'credit-card-outline';
-//       break;
-//     }
-//     case 3: {
-//       iconConfig.name = 'map-marker-outline';
-//       break;
-//     }
-//     default: {
-//       break;
-//     }
-//   }
-//   return iconConfig;
-// };
-
 class Index extends React.Component {
   constructor(props) {
     super(props);
+    if (props.route.params === undefined) {
+      this.getUserStatus();
+    }
     this.state = {
       currentPage: 0,
       userId: '',
       message: '',
       visible: false,
       success: false,
+      displayStep:false,
       stepArray: {
         labels: [
           'Personal Information',
@@ -80,7 +54,7 @@ class Index extends React.Component {
     }
 
     // alert(this.props.route);
-    this.fetchStepData();
+   
   };
 
   fetchStepData = () => {
@@ -100,11 +74,7 @@ class Index extends React.Component {
               stepArray: response.steps,
               currentPageName: response.steps.keys[0],
             },
-            () => {
-              if (this.props.route.params === undefined) {
-                this.getUserStatus();
-              }
-            },
+            () => {},
           );
         }
       })
@@ -122,38 +92,36 @@ class Index extends React.Component {
     });
   };
 
-  getPersonalInfo = (options, response, redirect = false) => {
-    fetch(`${API_URL}getUserPersonalInfo`, options)
-      .then((res) => res.json())
-      .then((res) => {
-        const {data} = res;
-        response.imageUri = data.avatar;
-        response.email = data.email;
-        response.username = data.username;
+  // getPersonalInfo = (options, response, redirect = false) => {
+  //   fetch(`${API_URL}getUserPersonalInfo`, options)
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       const {data} = res;
+  //       response.imageUri = data.avatar;
+  //       response.email = data.email;
+  //       response.username = data.username;
 
-        // console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-        // console.log(response);
+  //       this.props.setStatus(JSON.stringify(response));
+  //       AsyncStorage.setItem('profileStatus', JSON.stringify(response));
+  //       if (redirect) {
+  //         this.props.navigation.reset({
+  //           index: 0,
+  //           routes: [{name: 'Dashboard'}],
+  //         });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log('getUserPersonalInfo ' + err);
+  //     });
+  // };
 
-        // alert(JSON.stringify(response));
+  getUserStatus = async () => {
+    let userInfo = await AsyncStorage.getItem('userInfo');
+    userInfo = JSON.parse(userInfo);
 
-        this.props.setStatus(JSON.stringify(response));
-        AsyncStorage.setItem('profileStatus', JSON.stringify(response));
-        if (redirect) {
-          this.props.navigation.reset({
-            index: 0,
-            routes: [{name: 'Dashboard'}],
-          });
-        }
-      })
-      .catch((err) => {
-        console.log('getUserPersonalInfo ' + err);
-      });
-  };
-
-  getUserStatus = () => {
     let requestData = JSON.stringify({
-      merchant_id: this.state.userId,
-      user_id: this.state.userId,
+      merchant_id: userInfo.id,
+      user_id: userInfo.id,
     });
 
     let options = {
@@ -165,32 +133,50 @@ class Index extends React.Component {
       body: requestData,
     };
 
-    console.log(`${API_URL}merchantProfileCompeletionAction` + requestData);
-    fetch(`${API_URL}merchantProfileCompeletionAction`, options)
+    console.log(`${API_URL}merchantProfileMeta` + requestData);
+    fetch(`${API_URL}merchantProfileMeta`, options)
       .then((res) => res.json())
       .then((response) => {
         // console.log(response);
         this.setState({loading: false});
-        let type = response.type;
+        let type = response.action.type;
+
+        const data = response.profile;
+        response.imageUri = data.avatar;
+        response.email = data.email;
+        response.username = data.username;
+        response.type = type;
+
+        this.props.setStatus(JSON.stringify(response));
+        AsyncStorage.setItem('profileStatus', JSON.stringify(response));
 
         if (type) {
           type = type - 1;
           let status = this.state.stepArray.keys[type];
-          console.log(status + ' + type + ' + type + ' = ' + response.helpText);
-          this.showSnackbar(response.helpText);
+          // console.log(status + ' + type + ' + type + ' = ' + response.helpText);
+          this.showSnackbar(response.action.helpText);
           this.setState(
             {
               currentPage: type,
               currentPageName: status,
+              displayStep:true
             },
             () => {
               this.displayStepData();
             },
           );
-          this.getPersonalInfo(options, response);
+          // alert("oiiiii")
+          // this.getPersonalInfo(options, response);
           SplashScreen.hide();
+          this.fetchStepData();
         } else {
-          this.getPersonalInfo(options, response, true);
+          // alert('else');
+          // alert(JSON.stringify(response));
+
+          this.props.navigation.reset({
+            index: 0,
+            routes: [{name: 'Dashboard'}],
+          });
         }
       })
       .catch((err) => {
@@ -221,7 +207,7 @@ class Index extends React.Component {
   };
 
   displayStepData = () => {
-    console.log(this.state.currentPageName);
+    // console.log(this.state.currentPageName);
     // company_info', 'personal_info', 'banking_info', 'pickup_info
     if (this.state.currentPageName === 'personal_info') {
       return (
@@ -325,7 +311,7 @@ class Index extends React.Component {
               labels={this.state.stepArray.labels}
             />
             <View style={{marginVertical: 15, paddingHorizontal: 15}}>
-              {this.displayStepData()}
+              { this.state.displayStep ?  this.displayStepData() : null}
             </View>
           </View>
         </ScrollView>

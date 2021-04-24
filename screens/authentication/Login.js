@@ -20,7 +20,7 @@ import {globalStyles} from '../../global/styles';
 import AsyncStorage from '@react-native-community/async-storage';
 import SplashScreen from 'react-native-splash-screen';
 import {connect} from 'react-redux';
-import {setTheme} from '../../redux/actions/config';
+import {setTheme , setProfileStatus} from '../../redux/actions/config';
 // import auth from '@react-native-firebase/auth';
 import messaging from '@react-native-firebase/messaging';
 import DeviceInfo from 'react-native-device-info';
@@ -36,9 +36,7 @@ class Login extends React.Component {
     deviceName: '',
   };
 
-  constructor(props) {
-    super(props);
-  }
+ 
   componentDidMount() {
     this.checkUserIsLoggedIn();
     DeviceInfo.getDeviceName().then((deviceName) => {
@@ -189,26 +187,17 @@ class Login extends React.Component {
             this.setState({loading: false});
           });
       });
-
-    // messaging().onNotificationOpenedApp((remoteMessage) => {
-    //   console.log(
-    //     'Notification caused app to open from background state:',
-    //     remoteMessage,
-    //   );
-    // });
-
-    // Check whether an insitial notification is available
-    // messaging()
-    //   .getInitialNotification()
-    //   .then((remoteMessage) => {
-    //     console.log(
-    //       'Notification caused app to open from quit state:',
-    //       remoteMessage,
-    //     );
-    //   });
   };
 
   render() {
+    const param = this.props.route.params;
+    if (param !== undefined) {
+      if (param.screen !== undefined) {
+        this.showSnackbar(param.message, true);
+        param.screen = undefined;
+      }
+    }
+
     const login = () => {
       Keyboard.dismiss();
       if (this.state.username === '') {
@@ -232,11 +221,27 @@ class Login extends React.Component {
         })
           .then((res) => res.json())
           .then((response) => {
-            // console.log(response.user_arr);
+            // console.log(response);
+
+
+
 
             let status = response.status;
 
             if (status) {
+
+
+              const data = response.user_arr;
+              response.imageUri = data.avatar;
+              response.email = data.email;
+              response.username = data.username;
+              response.type = response.action.type;
+      
+              this.props.setStatus(JSON.stringify(response));
+              AsyncStorage.setItem('profileStatus', JSON.stringify(response));
+
+              // alert("done")
+
               AsyncStorage.setItem(
                 'userInfo',
                 JSON.stringify(response.user_arr),
@@ -244,8 +249,11 @@ class Login extends React.Component {
               this.getThemeMode(response.user_arr.id);
               this.storeDeviceInfo(response.user_arr.id);
               this.getBrandColor();
-              // this.getUserStatus(response.user_arr.id);
-              this.props.navigation.replace('User');
+
+              
+              this.props.navigation.replace('User', {
+                completed: response.profile_is_completed,
+              });
             } else {
               this.setState({loading: false});
               this.showSnackbar(response.status_text);
@@ -355,7 +363,10 @@ class Login extends React.Component {
                   marginTop: 10,
                   marginHorizontal: 10,
                 }}>
-                <TouchableOpacity onPress={() => console.log('om')}>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.props.navigation.navigate('ForgotPassword')
+                  }>
                   <Text style={{color: colors.textLight}}>
                     Forgot Password?
                   </Text>
@@ -400,6 +411,7 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   setUserTheme: setTheme,
+  setStatus:setProfileStatus
 })(Login);
 
 const styles = StyleSheet.create({

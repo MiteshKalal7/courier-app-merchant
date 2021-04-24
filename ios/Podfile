@@ -28,8 +28,6 @@ target 'smart' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
-  pod 'react-native-notification-sounds', :path => '../node_modules/react-native-notification-sounds'
-
   target 'smartTests' do
     inherit! :complete
     # Pods for testing

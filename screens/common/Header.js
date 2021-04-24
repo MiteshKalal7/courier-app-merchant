@@ -77,11 +77,7 @@ function Header(props) {
     });
   }
   const _handleAppStateChange = (nextAppState) => {
-    // console.log('OUT SIDE');
-    // if (appState.match(/inactive|background/) && nextAppState === 'active') {
-    console.log('FF');
     getNotificationCount();
-    // }
     setAppState(nextAppState);
   };
 
@@ -124,18 +120,12 @@ function Header(props) {
     });
 
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      // console.log(
-      //   'Notification caused app to open from background state:',
-      //   remoteMessage.notification,
-      // );
       let count = notificationCount;
       setNotificationCount(0);
       navigation.navigate('Notifications', {
         count: count,
         screen: 'header',
       });
-
-      // navigation.navigate(remoteMessage.data.type);
     });
   }, []);
 

@@ -61,7 +61,7 @@ export default class PersonalInformation extends Component {
     })
       .then((res) => res.json())
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         const {data} = response;
         this.setState({dataLoading: false});
         if (response.status) {
