@@ -123,7 +123,7 @@ function DrawerContent(props) {
             <TouchableRipple
               style={styles.userInfoSection}
               onPress={() =>
-                props.navigation.navigate('ProfileStep', {status: true})
+                props.navigation.navigate('ProfileStep', {status: 'TRUE'})
               }
               rippleColor="rgba(0, 0, 0, .32)">
               <View style={{flexDirection: 'row'}}>

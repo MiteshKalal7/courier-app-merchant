@@ -25,7 +25,7 @@ const Drawer = createDrawerNavigator();
 
 // LogBox.ignoreLogs(['Warning: ...']);
 // console.ignoredYellowBox = ['Warning: Each', 'Warning: Failed'];
-// console.disableYellowBox = true;
+console.disableYellowBox = true;
 // LogBox.ignoreAllLogs(value)
 
 function User(props) {

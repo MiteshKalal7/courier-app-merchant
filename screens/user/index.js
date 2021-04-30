@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, ScrollView} from 'react-native';
 import StepIndicator from 'react-native-step-indicator';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SplashScreen from 'react-native-splash-screen';
-import {colors, getThemeColors} from '../../global/themes';
+import {getThemeColors} from '../../global/themes';
 import {Snackbar} from 'react-native-paper';
 import {API_URL} from '../../global/config';
 import Header from '../common/Header';
@@ -15,28 +15,28 @@ import {setProfileStatus} from '../../redux/actions/config';
 class Index extends React.Component {
   constructor(props) {
     super(props);
-    if (props.route.params === undefined) {
-      this.getUserStatus();
-    }
+    // if (props.route.params === undefined) {
+    this.getUserStatus();
+    // }
     this.state = {
       currentPage: 0,
       userId: '',
       message: '',
       visible: false,
       success: false,
-      displayStep:false,
+      displayStep: false,
       stepArray: {
         labels: [
+          'Company Information',
           'Personal Information',
           'Banking Information',
-          'Company Information',
           'Pickup Location',
         ],
-        keys: ['personal_info', 'banking_info', 'company_info', 'pickup_info'],
+        keys: ['company_info', 'personal_info', 'banking_info', 'pickup_info'],
         icons: [
+          'home-city-outline',
           'account-outline',
           'credit-card-outline',
-          'home-city-outline',
           'map-marker-outline',
         ],
       },
@@ -54,35 +54,36 @@ class Index extends React.Component {
     }
 
     // alert(this.props.route);
-   
   };
 
-  fetchStepData = () => {
-    let requestData = JSON.stringify({
-      merchant_id: this.state.userId,
-    });
+  // fetchStepData = () => {
+  //   let requestData = JSON.stringify({
+  //     merchant_id: this.state.userId,
+  //   });
 
-    console.log(`${API_URL}merchantProfileCompletionSteps` + requestData);
-    fetch(`${API_URL}merchantProfileCompletionSteps`)
-      .then((res) => res.json())
-      .then((response) => {
-        console.log(response);
-        this.setState({loading: false});
-        if (response.status) {
-          this.setState(
-            {
-              stepArray: response.steps,
-              currentPageName: response.steps.keys[0],
-            },
-            () => {},
-          );
-        }
-      })
-      .catch((err) => {
-        console.log('merchantProfileCompletionSteps ' + err);
-        this.setState({loading: false});
-      });
-  };
+  //   console.log(`${API_URL}merchantProfileCompletionSteps` + requestData);
+  //   fetch(`${API_URL}merchantProfileCompletionSteps`)
+  //     .then((res) => res.json())
+  //     .then((response) => {
+  //       console.log(response);
+  //       this.setState({loading: false});
+  //       if (response.status) {
+  //         this.setState(
+  //           {
+  //             // stepArray: response.steps,
+  //             currentPageName: response.steps.keys[0],
+  //           },
+  //           () => {
+  //             this.displayStepData();
+  //           },
+  //         );
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log('merchantProfileCompletionSteps ' + err);
+  //       this.setState({loading: false});
+  //     });
+  // };
 
   showSnackbar = (message, status = false) => {
     this.setState({
@@ -150,16 +151,36 @@ class Index extends React.Component {
         this.props.setStatus(JSON.stringify(response));
         AsyncStorage.setItem('profileStatus', JSON.stringify(response));
 
+        if (this.props.route.params) {
+          console.log('$$$$$$$$$$$$$$$$$$$$$$$');
+          console.log(this.props.route.params);
+          // if (this.props.route.params.status) {
+          // alert('ff');
+          // }
+          type = true;
+        }
+
         if (type) {
-          type = type - 1;
+          type = type - 2;
+
+          if (type === 0) {
+            type = 1;
+          }
+          if (type < 0) {
+            type = 0;
+          }
+
           let status = this.state.stepArray.keys[type];
-          // console.log(status + ' + type + ' + type + ' = ' + response.helpText);
-          this.showSnackbar(response.action.helpText);
+          console.log(status + ' + type + ' + type + ' = ' + response.helpText);
+
+          if (response.action.helpText !== 'Your profile is 100% complete') {
+            this.showSnackbar(response.action.helpText);
+          }
           this.setState(
             {
               currentPage: type,
               currentPageName: status,
-              displayStep:true
+              displayStep: true,
             },
             () => {
               this.displayStepData();
@@ -168,11 +189,10 @@ class Index extends React.Component {
           // alert("oiiiii")
           // this.getPersonalInfo(options, response);
           SplashScreen.hide();
-          this.fetchStepData();
+          // this.fetchStepData();
         } else {
           // alert('else');
           // alert(JSON.stringify(response));
-
           this.props.navigation.reset({
             index: 0,
             routes: [{name: 'Dashboard'}],
@@ -207,7 +227,9 @@ class Index extends React.Component {
   };
 
   displayStepData = () => {
-    // console.log(this.state.currentPageName);
+    console.log('__________________________________________');
+    console.log(this.state.currentPageName);
+    // console.log('__________________________________________');
     // company_info', 'personal_info', 'banking_info', 'pickup_info
     if (this.state.currentPageName === 'personal_info') {
       return (
@@ -247,6 +269,14 @@ class Index extends React.Component {
   };
 
   render() {
+    const param = this.props.route.params;
+    if (param !== undefined) {
+      if (param.status !== undefined) {
+        this.getUserStatus();
+        param.status = undefined;
+      }
+    }
+
     const {colors} = this.props;
     const indicatorStyles = {
       stepIndicatorSize: 40,
@@ -311,7 +341,7 @@ class Index extends React.Component {
               labels={this.state.stepArray.labels}
             />
             <View style={{marginVertical: 15, paddingHorizontal: 15}}>
-              { this.state.displayStep ?  this.displayStepData() : null}
+              {this.state.displayStep ? this.displayStepData() : null}
             </View>
           </View>
         </ScrollView>
