@@ -256,7 +256,7 @@ class ListCard extends Component {
             </View>
 
             <View style={{flexDirection: 'row', marginTop: 10}}>
-              <Text style={styles.textStyle}>Arrived On</Text>
+              <Text style={styles.textStyle}>Order Placed at</Text>
               <View style={{marginLeft: 'auto'}}>
                 <Text style={styles.textStyle}>Status</Text>
               </View>
@@ -283,14 +283,6 @@ class ListCard extends Component {
           {this.state.expanded && (
             <View style={styles.childCard(colors.cardColor)}>
               <View style={{flexDirection: 'row'}}>
-                <Text style={styles.textStyle}>
-                  <Icon name="user" size={15} color="#999999" /> Merchant :{' '}
-                </Text>
-                <Text style={styles.textBlack(colors.textColor)}>
-                  {dataItem.client.name.phone}
-                </Text>
-              </View>
-              <View style={{flexDirection: 'row', marginTop: 5}}>
                 <Text style={styles.textStyle}>
                   <Icon name="users" size={15} color="#999999" /> Customer :{' '}
                 </Text>
