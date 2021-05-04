@@ -316,7 +316,7 @@ export default class PickupInfo extends Component {
                 paddingLeft: 10,
                 color: colors.textColor,
               }}>
-              Your address From where we will pick up
+             Pick up location
             </Title>
             <Divider style={{borderBottomWidth: 1}} />
             <View style={{paddingHorizontal: 10}}>

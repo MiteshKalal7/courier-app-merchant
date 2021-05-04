@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {setTheme} from './../../redux/actions/config';
 import {getThemeColors} from '../../global/themes';
 import {API_URL} from './../../global/config';
+import { Linking } from 'react-native';
 // import {bindActionCreators} from 'redux';
 
 var pkg = require('./../../package.json');
@@ -180,7 +181,7 @@ function DrawerContent(props) {
                     color={colors.textColor}
                   />
                 )}
-                label="Add Shipment"
+                label="Shipment"
                 labelStyle={{color: colors.textColor}}
                 onPress={() => {
                   if (profileStatus.type || profileStatus.type === undefined) {
@@ -219,6 +220,30 @@ function DrawerContent(props) {
             </Drawer.Section>
           </View>
         </DrawerContentScrollView>
+        
+        <View
+          style={{
+              flexDirection: 'row',
+              marginBottom: 5,
+              justifyContent: 'center',
+            }}>
+          <Text
+            style={{
+              color: colors.textColor,
+              textAlign: 'center',
+            }}>
+            Developed by:
+          </Text>
+          <TouchableRipple
+            style={{
+              marginBottom: 'auto',
+            }}
+            onPress={() => {
+              Linking.openURL('https://itscholarbd.com');
+            }}>
+            <Text style={{color: '#78A3E8'}}> ITscholarBD</Text>
+          </TouchableRipple>
+        </View>
         <Drawer.Section style={styles.bottomDrawerSection}>
           <DrawerItem
             style={{paddingBottom: 0}}

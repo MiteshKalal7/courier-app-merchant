@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "781431257346",
-    "project_id": "api-project-781431257346",
-    "storage_bucket": "api-project-781431257346.appspot.com"
+    "project_number": "431252155678",
+    "project_id": "somali-courier",
+    "storage_bucket": "somali-courier.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:781431257346:android:871fcc08f11071c8b92a1b",
+        "mobilesdk_app_id": "1:431252155678:android:83ea4625c506b7a9e72d0f",
         "android_client_info": {
-          "package_name": "com.itscholarbd.courier"
+          "package_name": "com.somali.courier"
         }
       },
       "oauth_client": [
         {
-          "client_id": "781431257346-kmnfbls5969tngvn194au0kt6uh7bmjk.apps.googleusercontent.com",
+          "client_id": "431252155678-tud1rjvifj6saimsm4mn9dulf034frv9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBNZrQIa8R1PqD2PKdt5VLQSylhiASF30o"
+          "current_key": "AIzaSyBu4tnLxo4QbSZ-gFbEt58WajQ8tgsWfQk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "781431257346-kmnfbls5969tngvn194au0kt6uh7bmjk.apps.googleusercontent.com",
+              "client_id": "431252155678-tud1rjvifj6saimsm4mn9dulf034frv9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

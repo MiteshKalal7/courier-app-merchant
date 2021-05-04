@@ -1,1 +1,2 @@
-export const API_URL = 'http://courierdemo.itscholarbd.com/api/v2/';
+export const API_URL = 'https://somalicourier.com/api/v2/';
+ 

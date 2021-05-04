@@ -30,7 +30,7 @@ class Registration extends React.Component {
     username: '',
     password: '',
     confirmPassword: '',
-    email: '',
+    mobile: '',
     address: '',
     message: '',
     visible: false,
@@ -121,28 +121,20 @@ class Registration extends React.Component {
 
       if (this.state.fullName === '') {
         this.showSnackbar('Full name is required');
-      } else if (this.state.email === '') {
-        this.showSnackbar('Email is required');
-      } else if (reg.test(this.state.email) === false) {
-        this.showSnackbar('Email is invalid');
-      } else if (this.state.username === '') {
-        this.showSnackbar('Username is required');
-      } else if (this.state.password === '') {
+      } else if (this.state.mobile === '') {
+        this.showSnackbar('Mobile number is required');
+      }  else if (this.state.password === '') {
         this.showSnackbar('Password is required');
       } else if (this.state.confirmPassword === '') {
         this.showSnackbar('Confirm password is required');
       } else if (this.state.confirmPassword !== this.state.password) {
         this.showSnackbar('Password and Confirm password mush be same');
-      } else if (this.state.address === '') {
-        this.showSnackbar('Address filed is required');
       } else {
         let requestData = JSON.stringify({
-          email: this.state.email,
+          mobile: this.state.mobile,
           name: this.state.fullName,
-          username: this.state.username,
           password: this.state.password,
-          password_confirmation: this.state.confirmPassword,
-          address: this.state.address,
+          password_confirmation: this.state.confirmPassword
         });
         this.setState({loading: true});
         console.log(`${API_URL}merchantSignup` + requestData);
@@ -198,16 +190,17 @@ class Registration extends React.Component {
           style={styles.container(colors.secondaryColor)}
           keyboardShouldPersistTaps="always">
           <View style={{paddingHorizontal: 10, justifyContent: 'center'}}>
-            <View
-              style={{
-                height: 140,
-                justifyContent: 'center',
-              }}>
-              <Image
+          <Image
                 source={LOGO}
-                style={{marginLeft: 'auto', marginRight: 'auto'}}
+                style={{
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  width: 150,
+                  height: 150,
+                  flex: 1,
+                  resizeMode:"contain",
+                }}
               />
-            </View>
 
             <TextInput
               label="Full Name"
@@ -224,38 +217,23 @@ class Registration extends React.Component {
               theme={inputTheme}
             />
             <TextInput
-              label="Email"
-              value={this.state.email}
-              onChangeText={(email) => {
-                this.setState({email});
+              label="Mobile Number"
+              value={this.state.mobile}
+              onChangeText={(mobile) => {
+                this.setState({mobile});
               }}
-              keyboardType={'email-address'}
+              keyboardType={'number-pad'}
               style={globalStyles.inputStyle}
               right={
                 <TextInput.Icon
                   name={() => (
-                    <Icon name={'email'} size={20} color={colors.textLight} />
+                    <Icon name={'phone'} size={20} color={colors.textLight} />
                   )}
                 />
               }
               theme={inputTheme}
             />
-            <TextInput
-              label="Username"
-              value={this.state.username}
-              onChangeText={(username) => {
-                this.setState({username});
-              }}
-              style={globalStyles.inputStyle}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'account'} size={20} color={colors.textLight} />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
+       
             <TextInput
               label="Password"
               value={this.state.password}
@@ -301,23 +279,6 @@ class Registration extends React.Component {
                       size={20}
                       color={colors.textLight}
                     />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
-            <TextInput
-              label="Address"
-              value={this.state.address}
-              onChangeText={(address) => {
-                this.setState({address});
-              }}
-              style={globalStyles.inputStyle}
-              multiline={true}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'home'} size={20} color={colors.textLight} />
                   )}
                 />
               }

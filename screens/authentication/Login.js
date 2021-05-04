@@ -28,7 +28,7 @@ import {store, getAsyncStorage} from './../../redux/store';
 
 class Login extends React.Component {
   state = {
-    username: '',
+    mobile: '',
     password: '',
     message: '',
     visible: false,
@@ -200,13 +200,13 @@ class Login extends React.Component {
 
     const login = () => {
       Keyboard.dismiss();
-      if (this.state.username === '') {
-        this.showSnackbar('Username is required');
+      if (this.state.mobile === '') {
+        this.showSnackbar('Mobile number is required');
       } else if (this.state.password === '') {
         this.showSnackbar('Password is required');
       } else {
         let requestData = JSON.stringify({
-          username: this.state.username,
+          username: this.state.mobile,
           password: this.state.password,
         });
         this.setState({loading: true});
@@ -234,7 +234,7 @@ class Login extends React.Component {
               const data = response.user_arr;
               response.imageUri = data.avatar;
               response.email = data.email;
-              response.username = data.username;
+              response.mobile = data.mobile;
               response.type = response.action.type;
       
               this.props.setStatus(JSON.stringify(response));
@@ -285,32 +285,30 @@ class Login extends React.Component {
             style={{
               paddingHorizontal: 10,
             }}>
-            <View
-              style={{
-                height: Dimensions.get('window').height / 3.5,
-                justifyContent: 'center',
-              }}>
               <Image
                 source={LOGO}
                 style={{
                   marginLeft: 'auto',
                   marginRight: 'auto',
+                  width: 150,
+                  height: 150,
+                  flex: 1,
+                  resizeMode:"contain",
                 }}
               />
-            </View>
             <View style={{justifyContent: 'center'}}>
               <TextInput
-                label="Username"
-                value={this.state.username}
-                onChangeText={(username) => {
-                  this.setState({username});
+                label="Mobile Number"
+                value={this.state.mobile}
+                onChangeText={(mobile) => {
+                  this.setState({mobile});
                 }}
                 style={globalStyles.inputStyle}
                 right={
                   <TextInput.Icon
                     name={() => (
                       <Icon
-                        name={'account'}
+                        name={'phone'}
                         size={20}
                         color={colors.textLight}
                       />

@@ -26,7 +26,6 @@ export default class PersonalInformation extends Component {
       email: '',
       mobile: '',
       phone: '',
-      address: '',
       password: '',
       confirmPassword: '',
       imageUri: this.props.imagePlaceholder,
@@ -70,8 +69,7 @@ export default class PersonalInformation extends Component {
             fullName: data.name,
             email: data.email,
             mobile: data.mobile,
-            phone: data.phone,
-            address: data.street_addr,
+            phone: data.phone
           });
         } else {
           this.props.showSnackbar(response.status_text);
@@ -89,16 +87,12 @@ export default class PersonalInformation extends Component {
 
     if (this.state.fullName === '') {
       this.props.showSnackbar('Full name is required');
-    } else if (this.state.email === '') {
-      this.props.showSnackbar('Email is required');
-    } else if (reg.test(this.state.email) === false) {
+    }  else if ( this.state.email !== '' && reg.test(this.state.email) === false) {
       this.props.showSnackbar('Email is invalid');
     } else if (this.state.username === '') {
       this.props.showSnackbar('Username is required');
     } else if (this.state.mobile === '') {
       this.props.showSnackbar('Mobile number is required');
-    } else if (this.state.address === '') {
-      this.props.showSnackbar('Address filed is required');
     } else {
       var photo = {
         uri: this.state.imageUri,
@@ -112,9 +106,6 @@ export default class PersonalInformation extends Component {
       bodyData.append('email', this.state.email);
       bodyData.append('mobile', this.state.mobile);
       bodyData.append('phone', this.state.phone);
-      bodyData.append('street_addr', this.state.address);
-      bodyData.append('password', this.state.password);
-      bodyData.append('password_confirmation', this.state.confirmPassword);
 
       if (photo.uri !== '' && photo.type !== '' && photo.name !== '') {
         bodyData.append('avatar', photo);
@@ -285,66 +276,6 @@ export default class PersonalInformation extends Component {
                       size={20}
                       color={colors.textLight}
                     />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
-            <TextInput
-              label="Personal Address"
-              value={this.state.address}
-              onChangeText={(address) => {
-                this.setState({address});
-              }}
-              style={globalStyles.inputStyle}
-              multiline={true}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'home'} size={20} color={colors.textLight} />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
-            <TextInput
-              label="Password"
-              value={this.state.password}
-              onChangeText={(password) => {
-                this.setState({password});
-              }}
-              style={globalStyles.inputStyle}
-              secureTextEntry={true}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'eye'} size={20} color={colors.textLight} />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
-            <Text
-              style={{
-                color: colors.textLight,
-                opacity: 0.7,
-                fontSize: 12,
-                paddingLeft: 5,
-              }}>
-              Keep password empty if you don't like to change the password
-            </Text>
-            <TextInput
-              label="Confirm Password"
-              value={this.state.confirmPassword}
-              onChangeText={(confirmPassword) => {
-                this.setState({confirmPassword});
-              }}
-              style={globalStyles.inputStyle}
-              secureTextEntry={true}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'eye'} size={20} color={colors.textLight} />
                   )}
                 />
               }

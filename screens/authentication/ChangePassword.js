@@ -149,13 +149,13 @@ const ChangePassword = (props_) => {
       showSnackbar('New Password and Confirm Password must be same!');
     } else {
       Keyboard.dismiss();
-      let userEmail = await AsyncStorage.getItem('emailAddress');
-      // alert(userEmail);
+      let phone = await AsyncStorage.getItem('phoneNumber');
+      // alert(phone);
       setVerifying(true);
       console.log(
         `${API_URL}resetPassword`,
         JSON.stringify({
-          email: userEmail,
+          phone: phone,
           password: password,
         }),
       );
@@ -166,7 +166,7 @@ const ChangePassword = (props_) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: userEmail,
+          phone: phone,
           password: password,
         }),
       })
@@ -174,7 +174,7 @@ const ChangePassword = (props_) => {
         .then((response) => {
           let status = response.status;
           showSnackbar(response.status_text, status);
-
+          setVerifying(false);
           if (response.status) {
             // navigation.replace('Login', {
             //   screen: 'ChangePassword',
@@ -201,13 +201,13 @@ const ChangePassword = (props_) => {
     }
   };
   const onVerifying = async () => {
-    let userEmail = await AsyncStorage.getItem('emailAddress');
-    // alert(userEmail);
+    let phone = await AsyncStorage.getItem('phoneNumber');
+    // alert(phone);
     setVerifying(true);
     console.log(
       `${API_URL}verifyPasswordOTP`,
       JSON.stringify({
-        email: userEmail,
+        phone: phone,
         otp: value,
       }),
     );
@@ -218,7 +218,7 @@ const ChangePassword = (props_) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: userEmail,
+        phone: phone,
         otp: value,
       }),
     })
@@ -253,19 +253,17 @@ const ChangePassword = (props_) => {
           backgroundColor: colors.secondaryColor,
           paddingHorizontal: 10,
         }}>
-        <View
-          style={{
-            height: Dimensions.get('window').height / 3.5,
-            justifyContent: 'center',
-          }}>
-          <Image
-            source={LOGO}
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-            }}
-          />
-        </View>
+        <Image
+                source={LOGO}
+                style={{
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  width: 150,
+                  height: 150,
+                  flex: 1,
+                  resizeMode:"contain",
+                }}
+              />
         {verified ? (
           <>
             <TextInput

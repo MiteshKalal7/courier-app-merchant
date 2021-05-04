@@ -23,7 +23,7 @@ import {setTheme} from '../../redux/actions/config';
 
 class Login extends React.Component {
   state = {
-    email: '',
+    phone: '',
     message: '',
     visible: false,
     success: false,
@@ -33,8 +33,8 @@ class Login extends React.Component {
     super(props);
   }
   // async componentDidMount() {
-  //   let userEmail = await AsyncStorage.getItem('emailAddress');
-  //   alert(userEmail);
+  //   let userphone = await AsyncStorage.getItem('phoneAddress');
+  //   alert(userphone);
   // }
 
   showSnackbar = (message, status = false) => {
@@ -50,13 +50,11 @@ class Login extends React.Component {
       Keyboard.dismiss();
       let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-      if (this.state.email === '') {
-        this.showSnackbar('email is required');
-      } else if (reg.test(this.state.email) === false) {
-        this.showSnackbar('Email is invalid');
+      if (this.state.phone === '') {
+        this.showSnackbar('Phone number is required');
       } else {
         let requestData = JSON.stringify({
-          email: this.state.email,
+          phone: this.state.phone,
         });
         this.setState({loading: true});
         console.log(`${API_URL}sendOTPforPasswordRecovery` + requestData);
@@ -74,10 +72,11 @@ class Login extends React.Component {
 
             let status = response.status;
             if (status) {
-              AsyncStorage.setItem('emailAddress', this.state.email);
+              AsyncStorage.setItem('phoneNumber', this.state.phone);
               this.setState({
-                email: '',
+                phone: '',
               });
+              this.props.navigation.navigate('ChangePassword')
             }
 
             this.setState({loading: false});
@@ -116,32 +115,30 @@ class Login extends React.Component {
             style={{
               paddingHorizontal: 10,
             }}>
-            <View
-              style={{
-                height: Dimensions.get('window').height / 3.5,
-                justifyContent: 'center',
-              }}>
-              <Image
+            <Image
                 source={LOGO}
                 style={{
                   marginLeft: 'auto',
                   marginRight: 'auto',
+                  width: 150,
+                  height: 150,
+                  flex: 1,
+                  resizeMode:"contain",
                 }}
               />
-            </View>
             <View style={{justifyContent: 'center'}}>
               <TextInput
-                label="Enter your email"
-                value={this.state.email}
-                onChangeText={(email) => {
-                  this.setState({email});
+                label="Enter your phone number"
+                value={this.state.phone}
+                onChangeText={(phone) => {
+                  this.setState({phone});
                 }}
-                keyboardType={'email-address'}
+                keyboardType={'number-pad'}
                 style={globalStyles.inputStyle}
                 right={
                   <TextInput.Icon
                     name={() => (
-                      <Icon name={'email'} size={20} color={colors.textLight} />
+                      <Icon name={'phone'} size={20} color={colors.textLight} />
                     )}
                   />
                 }

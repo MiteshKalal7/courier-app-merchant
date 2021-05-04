@@ -41,6 +41,8 @@ export default class BankingInfo extends Component {
       loading: false,
       editIndex: 0,
       edit: false,
+      ACCOUNTTYPES:{1: 'Personal', 2: 'Merchant'},
+      MOBILEBANKNAMES:{1: 'Nagad', 2: 'bKash', 3: 'Rocket' }
     };
   }
 
@@ -157,34 +159,42 @@ export default class BankingInfo extends Component {
   };
 
   addItem = () => {
-    if (this.state.edit) {
-      let bankInfo = this.state.mobileBanks;
-      let editAddress = {
-        name: this.state.mobileBankName,
-        account_number: this.state.mobileBankNumber,
-        account_type: this.state.mobileBankType,
-      };
-
-      bankInfo = bankInfo.map((u, index) =>
-        this.state.editIndex !== index ? u : editAddress,
-      );
-
-      this.setState({
-        mobileBanks: bankInfo,
-        isModalVisible: false,
-      });
-    } else {
-      this.setState({
-        mobileBanks: [
-          ...this.state.mobileBanks,
-          {
-            name: this.state.mobileBankName,
-            account_number: this.state.mobileBankNumber,
-            account_type: this.state.mobileBankType,
-          },
-        ],
-        isModalVisible: false,
-      });
+    if (this.state.mobileBankName === '') {
+      this.props.showSnackbar('Mobile Banking name is required');
+    } else if (this.state.mobileBankNumber === '') {
+      this.props.showSnackbar('Mobile number required');
+    } else if (this.state.mobileBankType === '') {
+      this.props.showSnackbar('Account Type is required');
+    }else{
+      if (this.state.edit) {
+        let bankInfo = this.state.mobileBanks;
+        let editAddress = {
+          name: this.state.mobileBankName,
+          account_number: this.state.mobileBankNumber,
+          account_type: this.state.mobileBankType,
+        };
+  
+        bankInfo = bankInfo.map((u, index) =>
+          this.state.editIndex !== index ? u : editAddress,
+        );
+  
+        this.setState({
+          mobileBanks: bankInfo,
+          isModalVisible: false,
+        });
+      } else {
+        this.setState({
+          mobileBanks: [
+            ...this.state.mobileBanks,
+            {
+              name: this.state.mobileBankName,
+              account_number: this.state.mobileBankNumber,
+              account_type: this.state.mobileBankType,
+            },
+          ],
+          isModalVisible: false,
+        });
+      }
     }
   };
 
@@ -212,27 +222,24 @@ export default class BankingInfo extends Component {
                 marginVertical: 10,
                 paddingLeft: 10,
                 color: colors.textColor,
-              }}>
+              }}> 
               Mobile Bank Information
             </Title>
             <Divider style={{borderBottomWidth: 1}} />
             <View style={{paddingHorizontal: 10}}>
+             <Picker
+                selectedValue={this.state.mobileBankName}
+                style={{height: 50, marginVertical: 5, color: colors.textColor}}
+                onValueChange={(itemValue) => {
+                  this.setState({mobileBankName: itemValue});
+                }}>
+                <Picker.Item label="Mobile Banking name" value="" />
+                <Picker.Item label="Nagad" value="1" />
+                <Picker.Item label="bKash" value="2" />
+                <Picker.Item label="Rocket" value="3" />
+              </Picker>
               <TextInput
-                label="Mobile Bank Name"
-                value={this.state.mobileBankName}
-                onChangeText={(text) => this.setState({mobileBankName: text})}
-                style={globalStyles.inputStyle}
-                right={
-                  <TextInput.Icon
-                    name={() => (
-                      <Icon name={'bank'} size={20} color={colors.textLight} />
-                    )}
-                  />
-                }
-                theme={inputTheme}
-              />
-              <TextInput
-                label="Account Number"
+                label="Mobile Number"
                 value={this.state.mobileBankNumber}
                 onChangeText={(mobileBankNumber) => {
                   this.setState({mobileBankNumber});
@@ -242,7 +249,7 @@ export default class BankingInfo extends Component {
                 right={
                   <TextInput.Icon
                     name={() => (
-                      <Icon name={'bank'} size={20} color={colors.textLight} />
+                      <Icon name={'phone'} size={20} color={colors.textLight} />
                     )}
                   />
                 }
@@ -254,6 +261,7 @@ export default class BankingInfo extends Component {
                 onValueChange={(itemValue) => {
                   this.setState({mobileBankType: itemValue});
                 }}>
+                <Picker.Item label="Select Account Type" value="" />
                 <Picker.Item label="Personal" value="1" />
                 <Picker.Item label="Merchant" value="2" />
               </Picker>
@@ -415,16 +423,14 @@ export default class BankingInfo extends Component {
                           <View style={{flexDirection: 'row'}}>
                             <View>
                               <Subheading style={{color: colors.textLight}}>
-                                Bank Name: {item.name}
+                                Bank Name: {this.state.MOBILEBANKNAMES[item.name] }
                               </Subheading>
                               <Subheading style={{color: colors.textLight}}>
-                                Account Number: {item.account_number}
+                                Mobile Number: {item.account_number}
                               </Subheading>
                               <Subheading style={{color: colors.textLight}}>
                                 Account Type:{' '}
-                                {item.account_type === '1'
-                                  ? 'Personal'
-                                  : 'Merchant'}
+                                {this.state.ACCOUNTTYPES[item.account_type] }
                               </Subheading>
                             </View>
                             <View

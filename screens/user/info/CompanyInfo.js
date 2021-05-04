@@ -90,41 +90,20 @@ export default class CompanyInfo extends Component {
 
     if (this.state.businessName === '') {
       this.props.showSnackbar('Business name is required');
-    } else if (this.state.code === '') {
-      this.props.showSnackbar('Business code is required');
-    } else if (this.state.email === '') {
+    }  else if (this.state.email === '') {
       this.props.showSnackbar('Email is required');
     } else if (reg.test(this.state.email) === false) {
       this.props.showSnackbar('Email is invalid');
-    } else if (this.state.siteUrl === '') {
-      this.props.showSnackbar('Site URL is required');
-    } else if (this.state.mobile === '') {
-      this.props.showSnackbar('Phone number is required');
-    } else if (this.state.address === '') {
-      this.props.showSnackbar('Company Address filed is required');
     } else if (this.state.productType === '') {
       this.props.showSnackbar('Product type is required');
     } else {
-      var photo = {
-        uri: this.state.imageUri,
-        type: this.state.imageType,
-        name: this.state.imageName,
-      };
 
       var bodyData = new FormData();
       bodyData.append('merchant_id', this.state.userId);
       bodyData.append('name', this.state.businessName);
-      bodyData.append('code', this.state.code);
       bodyData.append('email', this.state.email);
       bodyData.append('phone', this.state.mobile);
-      bodyData.append('alt_phone', this.state.phone);
-      bodyData.append('address', this.state.address);
-      bodyData.append('product_type', this.state.address);
-      bodyData.append('url', this.state.address);
-
-      if (photo.uri !== '' && photo.type !== '' && photo.name !== '') {
-        bodyData.append('logo', photo);
-      }
+      bodyData.append('product_type', this.state.productType);
 
       this.setState({loading: true});
       console.log(`${API_URL}updateCompanyInfo` + JSON.stringify(bodyData));
@@ -180,7 +159,7 @@ export default class CompanyInfo extends Component {
               )}
             </View>
             <Divider />
-            <View style={{marginTop: 5, flexDirection: 'row', paddingLeft: 10}}>
+            {/* <View style={{marginTop: 5, flexDirection: 'row', paddingLeft: 10}}>
               <Text
                 style={{color: colors.textColor, textAlignVertical: 'center'}}>
                 Logo :{' '}
@@ -219,7 +198,7 @@ export default class CompanyInfo extends Component {
                   <Text style={{color: colors.textColor}}>Select Picture</Text>
                 )}
               </TouchableOpacity>
-            </View>
+            </View> */}
             <TextInput
               label="Business Name"
               value={this.state.businessName}
@@ -238,26 +217,7 @@ export default class CompanyInfo extends Component {
               }
               theme={inputTheme}
             />
-            <TextInput
-              label="Business Code"
-              value={this.state.code}
-              onChangeText={(code) => {
-                this.setState({code});
-              }}
-              style={globalStyles.inputStyle}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon
-                      name={'code-tags'}
-                      size={20}
-                      color={colors.textLight}
-                    />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
+        
             <TextInput
               label="Email"
               value={this.state.email}
@@ -275,22 +235,7 @@ export default class CompanyInfo extends Component {
               }
               theme={inputTheme}
             />
-            <TextInput
-              label="Site Url"
-              value={this.state.siteUrl}
-              onChangeText={(siteUrl) => {
-                this.setState({siteUrl});
-              }}
-              style={globalStyles.inputStyle}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'web'} size={20} color={colors.textLight} />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
+         
             <TextInput
               label="Phone"
               value={this.state.mobile}
@@ -308,44 +253,7 @@ export default class CompanyInfo extends Component {
               }
               theme={inputTheme}
             />
-            <TextInput
-              label="Alternative Phone "
-              value={this.state.phone}
-              onChangeText={(phone) => {
-                this.setState({phone});
-              }}
-              keyboardType={'number-pad'}
-              style={globalStyles.inputStyle}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon
-                      name={'phone-alert'}
-                      size={20}
-                      color={colors.textLight}
-                    />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
-            <TextInput
-              label="Company Address"
-              value={this.state.address}
-              onChangeText={(address) => {
-                this.setState({address});
-              }}
-              style={globalStyles.inputStyle}
-              multiline={true}
-              right={
-                <TextInput.Icon
-                  name={() => (
-                    <Icon name={'home'} size={20} color={colors.textLight} />
-                  )}
-                />
-              }
-              theme={inputTheme}
-            />
+
             <TextInput
               label="Product Type"
               value={this.state.productType}
